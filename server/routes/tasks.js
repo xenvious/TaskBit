@@ -3,13 +3,30 @@ const router = express.Router();
 const pool = require('../db');
 
 router.get('/', async (req, res) => {
-  try {
-    const result = await pool.query('SELECT * FROM tasks ORDER BY id DESC');
-    res.json(result.rows);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+    const { status, priority } = req.query;
+    let query = 'SELECT * FROM tasks';
+    let params = [];
+    let whereClauses = [];
+    if (status) {
+      params.push(status);
+      whereClauses.push(`status = $${params.length}`);
+    }
+    if (priority) {
+      params.push(priority);
+      whereClauses.push(`priority = $${params.length}`);
+    }
+    if (whereClauses.length > 0) {
+      query += ' WHERE ' + whereClauses.join(' AND ');
+    }
+    query += ' ORDER BY id DESC';
+    try {
+      const result = await pool.query(query, params);
+      res.json(result.rows);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+  
 
 router.post('/', async (req, res) => {
     const { title, description, status, priority, due_date } = req.body;
