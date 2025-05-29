@@ -28,4 +28,26 @@ router.post('/', async (req, res) => {
     }
   });
 
+  router.put('/:id', async (req, res) => {
+    const { id } = req.params;
+    const { title, description, status, priority, due_date } = req.body;
+    if (!title) {
+      return res.status(400).json({ error: 'Title is required' });
+    }
+    try {
+      const result = await pool.query(
+        `UPDATE tasks 
+        SET title=$1, description=$2, status=$3, priority=$4, due_date=$5, updated_at=NOW()
+        WHERE id=$6 RETURNING *`,
+        [title, description, status, priority, due_date, id]
+      );
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: 'Task not found' });
+      }
+      res.json(result.rows[0]);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
 module.exports = router;
