@@ -28,15 +28,15 @@ router.get('/', async (req, res) => {
   });
   
   router.post('/', async (req, res) => {
-    const { title, description, status, priority, due_date, assigned_to, comments } = req.body;
+    const { title, description, status, priority, due_date, assigned_to } = req.body;
     if (!title) {
       return res.status(400).json({ error: 'Title is required!' });
     }
     try {
       const result = await pool.query(
-        `INSERT INTO tasks (title, description, status, priority, due_date, assigned_to, comments) 
-         VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
-        [title, description, status, priority, due_date, assigned_to, comments]
+        `INSERT INTO tasks (title, description, status, priority, due_date, assigned_to) 
+         VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+        [title, description, status, priority, due_date, assigned_to]
       );
       res.status(201).json(result.rows[0]);
     } catch (err) {
@@ -46,16 +46,16 @@ router.get('/', async (req, res) => {
   
   router.put('/:id', async (req, res) => {
     const { id } = req.params;
-    const { title, description, status, priority, due_date, assigned_to, comments } = req.body;
+    const { title, description, status, priority, due_date, assigned_to } = req.body;
     if (!title) {
       return res.status(400).json({ error: 'Title is required' });
     }
     try {
       const result = await pool.query(
         `UPDATE tasks 
-         SET title=$1, description=$2, status=$3, priority=$4, due_date=$5, assigned_to=$6, comments=$7, updated_at=NOW()
+         SET title=$1, description=$2, status=$3, priority=$4, due_date=$5, assigned_to=$6, updated_at=NOW()
          WHERE id=$8 RETURNING *`,
-        [title, description, status, priority, due_date, assigned_to, comments, id]
+        [title, description, status, priority, due_date, assigned_to, id]
       );
       if (result.rows.length === 0) {
         return res.status(404).json({ error: 'Task not found' });
