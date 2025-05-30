@@ -11,6 +11,7 @@ app.use(express.json());
 app.use('/api/tasks', tasksRouter);
 app.use('/api/employees', require('./routes/employees'));
 app.use('/api/roles', require('./routes/roles'));
+app.use('/api/tasks', require('./routes/comments')); // For /api/tasks/:taskId/comments
 
 app.get('/api/health', (req, res) => res.json({ status: 'OK' }));
 
